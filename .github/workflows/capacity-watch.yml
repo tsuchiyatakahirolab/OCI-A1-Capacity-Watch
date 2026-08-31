@@ -1,12 +1,13 @@
 name: OCI A1 capacity watch
 on:
   workflow_dispatch:
-# Hourly scheduling is added only after the real dispatch commissioning gate.
+  schedule:
+    - cron: '17 * * * *'  # UTC; best effort, also minute 17 in Japan.
 permissions:
   contents: read
 concurrency:
   group: oci-a1-capacity-watch
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   capacity:
     if: >-

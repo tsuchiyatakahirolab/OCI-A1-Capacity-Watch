@@ -35,9 +35,10 @@ The `oci-watch` environment accepts only `main`. PR verification is offline and 
 secrets. Default token permission is `contents: read`; only the notification job receives
 `issues: write`, and that job receives no OCI credentials.
 
-The workflow concurrency group allows at most one active run. GitHub retains at most one
-pending run and replaces an older pending run on additional overlap; it never cancels an
-in-flight capacity request to start a competing one. No catch-up or retry loop exists.
+The workflow concurrency group allows at most one active run and cancels an overlapping
+older execution. A canceled execution is never automatically retried; if its request already
+reached OCI, that reporting-only observation cannot be recalled. Every execution still has
+its own hard one-query bound. No catch-up or retry loop exists.
 
 Commission first with `workflow_dispatch`, then enable the hourly schedule at minute 17 UTC
 (minute 17 in Japan too). GitHub schedule is best effort: it can be delayed or dropped.
