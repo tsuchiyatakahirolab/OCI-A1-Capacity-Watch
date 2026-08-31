@@ -215,6 +215,7 @@ class Tests(unittest.TestCase):
                       "!github.event.repository.private", "environment: oci-watch"):
             self.assertIn(guard, production)
         self.assertNotIn("secrets.", verification)
+        self.assertIn("cancel-in-progress: true", production)
         self.assertNotIn("pull_request_target", production + verification)
         self.assertEqual(production.count("issues: write"), 1)
         capacity, notification = production.split("  notify:", 1)

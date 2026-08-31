@@ -7,7 +7,7 @@ permissions:
   contents: read
 concurrency:
   group: oci-a1-capacity-watch
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   capacity:
     if: >-

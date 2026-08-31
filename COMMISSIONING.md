@@ -43,7 +43,8 @@ query; block-scalar syntax was corrected before the single real manual dispatch.
 ## Activation controls
 
 Schedule: minute 17 every hour, UTC, best effort. Runtime code is unchanged from the
-successful manual dispatch. The enabling change passes the protected branch's `tests`
+successful manual dispatch. Overlapping older workflow executions are canceled, not retried.
+The enabling change passes the protected branch's `tests`
 check through a PR. Workflow permissions are `contents: read`, plus `issues: write` only
 on the separate notification job. The `oci-watch` environment allows only the `main` branch.
 No secrets are available to PR verification.
