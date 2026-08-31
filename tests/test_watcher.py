@@ -225,6 +225,8 @@ class Tests(unittest.TestCase):
             self.assertRegex(action, r"^actions/(checkout|setup-python)@[a-f0-9]{40}$")
         for forbidden in ("upload-artifact", "actions/cache", "self-hosted", "write-all", "secrets: inherit"):
             self.assertNotIn(forbidden, production + verification)
+        for command in re.findall(r"^\s+- run: (.+)$", production + verification, re.MULTILINE):
+            self.assertNotIn(": ", command, "Use block scalars for commands containing YAML mapping syntax")
 
 
 if __name__ == "__main__":
