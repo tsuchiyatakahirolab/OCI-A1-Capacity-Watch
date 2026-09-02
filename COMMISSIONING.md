@@ -58,11 +58,10 @@ owner runbook; do not manufacture commits. The previous local capacity watcher r
 manual fallback, while its automatic schedule is paused only after online activation is
 verified. The separate local GFW collector remains unchanged and authoritative.
 
-## Durable Alarm clock cutover (pending)
+## Durable Alarm clock cutover — active 2026-09-02
 
 The GitHub scheduled event was later measured at roughly 2.5–7.5-hour intervals. The replacement
-clock is implemented under `cloudflare-scheduler/`, but the original schedule remains authoritative
-until all of the following online checks pass:
+clock is implemented under `cloudflare-scheduler/`. The cutover checks passed in this order:
 
 1. selected Cloudflare account independently confirmed as Workers Free;
 2. fine-grained GitHub credential limited to this repository and `Actions: write` only;
@@ -71,7 +70,18 @@ until all of the following online checks pass:
 5. current result remains ordinary `OUT_OF_HOST_CAPACITY` with no Issue;
 6. production Worker is redeployed without a route and the temporary commissioning secret deleted.
 
-Only then may a separate reviewed commit remove `schedule:` while retaining `workflow_dispatch`,
-concurrency, OCI semantics and existing notification behavior. First-24-hour evidence records the
-nominal slot, actual Alarm time, dispatch time, GitHub `created_at`, OCI server time and derived
-end-to-end latency. No OCI or billing resource is created during this cutover.
+The first live Alarm claimed nominal slot `2026-09-02T09:17:00.000Z`, fired and sent the GitHub
+request at `2026-09-02T09:49:25.602Z`, and received HTTP 204. Exactly one new
+[`workflow_dispatch` run](https://github.com/tsuchiyatakahirolab/OCI-A1-Capacity-Watch/actions/runs/33616209925)
+was created at `2026-09-02T09:49:26Z`; its capacity job started at `09:49:32Z`. The one OCI
+capacity response had server timestamp `2026-09-02T09:49:38.411000+00:00` and completed with
+HTTP 200, `OUT_OF_HOST_CAPACITY`, and `available_count: null`. The notification job was skipped,
+open Issue count remained zero, and no OCI mutation occurred.
+
+Alarm-to-workflow creation was about 0.4 seconds and Alarm-to-OCI server response about 12.8
+seconds. The next future slot was set to `2026-09-02T10:17:00.000Z`; no missed-slot catch-up was
+attempted. Durable SQLite history retains 72 slots, covering the required first 24-hour evidence
+window. After the successful online check the production Worker was deployed with no route, the
+commissioning secret was deleted, and a separate reviewed change removed GitHub `schedule:` while
+retaining `workflow_dispatch`, concurrency, OCI semantics and existing notification behavior.
+No OCI or billing resource was created during this cutover.

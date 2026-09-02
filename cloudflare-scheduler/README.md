@@ -37,7 +37,8 @@ npx wrangler deploy --dry-run --config wrangler.commission.jsonc
 1. Verify the selected Cloudflare account is Workers Free.
 2. Create a GitHub fine-grained token limited to this repository, `Actions: write` only (GitHub's
    implicit Metadata read is acceptable). Never paste it into a file or shell history.
-3. Deploy the temporary commissioning entry point and enter both secrets via `wrangler secret put`.
+3. Deploy the temporary commissioning entry point and enter both secrets without persisting their
+   values to a file, shell history, report, or repository.
 4. Call the exact authenticated initialize endpoint once. It schedules the first alarm for one
    minute later. Inspect the authenticated status endpoint and GitHub Actions run.
 5. Confirm one dispatch, one OCI query, current expected `OUT_OF_HOST_CAPACITY`, and no Issue.
@@ -48,3 +49,6 @@ npx wrangler deploy --dry-run --config wrangler.commission.jsonc
 
 Never deploy with a broad GitHub OAuth token. Never pass repository/workflow/ref through a request;
 all three are fixed in source. See the repository `SECURITY.md` and `COMMISSIONING.md`.
+
+Commissioning completed on 2026-09-02. The production Worker has no public route; only
+`GITHUB_DISPATCH_TOKEN` remains as a Worker Secret. The former GitHub cron has been removed.

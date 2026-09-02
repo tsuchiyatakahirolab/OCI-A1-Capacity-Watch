@@ -18,8 +18,6 @@ on:
         description: GitHub dispatch request time
         required: false
         type: string
-  schedule:
-    - cron: '17 * * * *'  # UTC; best effort, also minute 17 in Japan.
 permissions:
   contents: read
 concurrency:
@@ -31,7 +29,7 @@ jobs:
       github.repository == 'tsuchiyatakahirolab/OCI-A1-Capacity-Watch' &&
       !github.event.repository.private && github.ref == 'refs/heads/main' &&
       github.ref_protected && github.event.repository.default_branch == 'main' &&
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     environment: oci-watch
