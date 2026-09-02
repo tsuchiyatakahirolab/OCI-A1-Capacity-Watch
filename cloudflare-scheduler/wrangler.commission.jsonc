@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "oci-a1-capacity-watch-clock",
+  "main": "src/commission.ts",
+  "compatibility_date": "2026-09-02",
+  "workers_dev": true,
+  "preview_urls": false,
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CAPACITY_CLOCK",
+        "class_name": "CapacityWatchClock"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["CapacityWatchClock"]
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true
+    }
+  }
+}

@@ -9,3 +9,7 @@ __pycache__/
 *.sqlite*
 *.db
 result.json
+.dev.vars
+.wrangler/
+cloudflare-scheduler/node_modules/
+cloudflare-scheduler/worker-configuration.d.ts

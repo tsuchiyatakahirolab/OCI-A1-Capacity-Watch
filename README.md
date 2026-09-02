@@ -42,7 +42,11 @@ its own hard one-query bound. No catch-up or retry loop exists.
 
 Commission first with `workflow_dispatch`, then enable the hourly schedule at minute 17 UTC
 (minute 17 in Japan too). GitHub schedule is best effort: it can be delayed or dropped.
-It is **not** a guaranteed hourly SLA.
+It is **not** a guaranteed hourly SLA. Because observed scheduled-event delays later reached
+multiple hours, `cloudflare-scheduler/` contains the bounded replacement clock: a Workers Free
+SQLite Durable Object Alarm invokes this same workflow through `workflow_dispatch`. During
+commissioning the GitHub schedule remains present. It must be removed only after one real Alarm
+has produced exactly one successful capacity report; the OCI request code remains unchanged.
 
 ## Owner operations
 

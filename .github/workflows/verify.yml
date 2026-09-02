@@ -20,4 +20,17 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: python -m compileall -q watcher.py notify.py security_scan.py tests
       - run: python security_scan.py
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci
+        working-directory: cloudflare-scheduler
+      - run: npm run types
+        working-directory: cloudflare-scheduler
+      - run: npm run check
+        working-directory: cloudflare-scheduler
+      - run: npx wrangler deploy --dry-run --config wrangler.jsonc
+        working-directory: cloudflare-scheduler
+      - run: npx wrangler deploy --dry-run --config wrangler.commission.jsonc
+        working-directory: cloudflare-scheduler
       - run: git diff --check

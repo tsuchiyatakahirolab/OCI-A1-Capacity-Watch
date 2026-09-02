@@ -1,6 +1,23 @@
 name: OCI A1 capacity watch
 on:
   workflow_dispatch:
+    inputs:
+      trigger:
+        description: Bounded trigger identity
+        required: false
+        type: string
+      nominal_slot:
+        description: Nominal UTC alarm slot
+        required: false
+        type: string
+      alarm_fired_at:
+        description: Actual Durable Object alarm time
+        required: false
+        type: string
+      dispatch_http_at:
+        description: GitHub dispatch request time
+        required: false
+        type: string
   schedule:
     - cron: '17 * * * *'  # UTC; best effort, also minute 17 in Japan.
 permissions:
@@ -22,6 +39,31 @@ jobs:
       state: ${{ steps.query.outputs.state }}
       result: ${{ steps.query.outputs.result }}
     steps:
+      - name: Record bounded trigger timing
+        if: github.event_name == 'workflow_dispatch'
+        shell: python
+        env:
+          WATCH_TRIGGER: ${{ inputs.trigger }}
+          WATCH_NOMINAL_SLOT: ${{ inputs.nominal_slot }}
+          WATCH_ALARM_FIRED_AT: ${{ inputs.alarm_fired_at }}
+          WATCH_DISPATCH_HTTP_AT: ${{ inputs.dispatch_http_at }}
+        run: |
+          import json
+          import os
+          import re
+
+          timestamp = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$")
+          trigger = os.environ.get("WATCH_TRIGGER", "")
+          values = {
+              "nominal_slot": os.environ.get("WATCH_NOMINAL_SLOT", ""),
+              "alarm_fired_at": os.environ.get("WATCH_ALARM_FIRED_AT", ""),
+              "dispatch_http_at": os.environ.get("WATCH_DISPATCH_HTTP_AT", ""),
+          }
+          if trigger not in {"", "cloudflare-durable-alarm"}:
+              raise SystemExit("unsupported trigger identity")
+          if any(value and not timestamp.fullmatch(value) for value in values.values()):
+              raise SystemExit("invalid trigger timestamp")
+          print(json.dumps({"trigger": trigger or "owner-manual", **values}, sort_keys=True))
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.sha }}
