@@ -25,6 +25,8 @@ jobs:
           node-version: '24'
       - run: npm ci
         working-directory: cloudflare-scheduler
+      - run: npm run types
+        working-directory: cloudflare-scheduler
       - run: npm run check
         working-directory: cloudflare-scheduler
       - run: npx wrangler deploy --dry-run --config wrangler.jsonc
