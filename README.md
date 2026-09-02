@@ -30,7 +30,8 @@ OCI VM, reservation, storage, network or subscription operation is used.
 Dependencies are wheel-hash-pinned for CPython 3.12 on Linux x86_64.
 First-party Actions are commit-pinned. No third-party Actions are needed.
 
-Production runs only on the protected default `main` branch, via manual dispatch or schedule.
+Production runs only on the protected default `main` branch via `workflow_dispatch`, either from
+the bounded Cloudflare clock or by explicit owner action.
 The `oci-watch` environment accepts only `main`. PR verification is offline and has no OCI
 secrets. Default token permission is `contents: read`; only the notification job receives
 `issues: write`, and that job receives no OCI credentials.
@@ -40,13 +41,11 @@ older execution. A canceled execution is never automatically retried; if its req
 reached OCI, that reporting-only observation cannot be recalled. Every execution still has
 its own hard one-query bound. No catch-up or retry loop exists.
 
-Commission first with `workflow_dispatch`, then enable the hourly schedule at minute 17 UTC
-(minute 17 in Japan too). GitHub schedule is best effort: it can be delayed or dropped.
-It is **not** a guaranteed hourly SLA. Because observed scheduled-event delays later reached
-multiple hours, `cloudflare-scheduler/` contains the bounded replacement clock: a Workers Free
-SQLite Durable Object Alarm invokes this same workflow through `workflow_dispatch`. During
-commissioning the GitHub schedule remains present. It must be removed only after one real Alarm
-has produced exactly one successful capacity report; the OCI request code remains unchanged.
+The primary clock is a Workers Free SQLite Durable Object Alarm at nominal minute `:17 UTC`.
+It invokes this workflow through `workflow_dispatch`. The former GitHub `schedule` trigger was
+removed only after one real Alarm produced exactly one successful capacity report. The OCI request
+code and permissions are unchanged. Durable SQLite state keeps the first 72 dispatch records so
+the initial 24-hour timeliness window remains auditable without artifact uploads.
 
 ## Owner operations
 
@@ -55,9 +54,8 @@ has produced exactly one successful capacity report; the OCI request code remain
 3. On an availability Issue, separately revalidate zero billing before any owner-authorized VM work.
 4. On credential-integrity alert, stop the workflow and have the owner inspect/revoke unexpected
    keys using their administrative context. The watcher never manages keys itself.
-5. Public-repository scheduled workflows can automatically disable after **60 days of repository
-   inactivity**. Inspect the workflow state periodically and use GitHub's **Enable workflow**
-   control when required. Do not create artificial commits to evade this safeguard.
+5. Inspect the Cloudflare Alarm state and GitHub `workflow_dispatch` history when monitoring
+   timeliness; there is no GitHub cron fallback that can create duplicate queries.
 6. When changing code, use a PR with the required `tests` check; never put OCI secrets in PR jobs.
 7. The old local capacity watcher is a manual fallback after online commissioning. Its code and
    SQLite history are retained. The independent local GFW collector remains authoritative.
