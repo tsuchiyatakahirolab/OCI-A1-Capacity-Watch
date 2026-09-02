@@ -62,3 +62,17 @@ checking for an existing open bot notification. Credential failures do not silen
 
 The online watcher never audits subscription/storage/billing using broader grants and never
 claims capacity availability alone proves an Always Free VM can be created.
+
+## Cloudflare clock boundary
+
+The optional replacement clock is a Workers Free SQLite Durable Object that contains no OCI
+credential or OCI request logic. Its only external action is one fixed GitHub Actions dispatch
+request per atomically claimed hourly slot. Repository, workflow and branch are constants; no
+request can select another target. The production Worker has no route and returns 404 from its
+module handler. A temporary commissioning route is protected by a separate secret, is used only
+to initialize/inspect the first Alarm, and is removed after commissioning.
+
+The GitHub dispatch credential must be fine-grained, limited to this repository, and grant only
+`Actions: write` plus GitHub's implicit metadata read. It lives only as a Cloudflare Worker Secret
+and cannot read the `oci-watch` environment secrets. A broad OAuth/PAT is prohibited. Free-limit
+exhaustion is accepted as a fail-closed monitoring gap, never as permission to enable a paid plan.

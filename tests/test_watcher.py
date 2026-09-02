@@ -223,7 +223,7 @@ class Tests(unittest.TestCase):
         self.assertNotIn("secrets.OCI_", notification)
         self.assertEqual(set(re.findall(r"runs-on: (.+)", production + verification)), {"ubuntu-24.04"})
         for action in re.findall(r"uses: (.+)", production + verification):
-            self.assertRegex(action, r"^actions/(checkout|setup-python)@[a-f0-9]{40}$")
+            self.assertRegex(action, r"^actions/(checkout|setup-node|setup-python)@[a-f0-9]{40}$")
         for forbidden in ("upload-artifact", "actions/cache", "self-hosted", "write-all", "secrets: inherit"):
             self.assertNotIn(forbidden, production + verification)
         for command in re.findall(r"^\s+- run: (.+)$", production + verification, re.MULTILINE):

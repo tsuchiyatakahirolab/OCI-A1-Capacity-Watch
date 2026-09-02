@@ -57,3 +57,21 @@ GitHub can disable public schedules after 60 days of repository inactivity. Use 
 owner runbook; do not manufacture commits. The previous local capacity watcher remains a
 manual fallback, while its automatic schedule is paused only after online activation is
 verified. The separate local GFW collector remains unchanged and authoritative.
+
+## Durable Alarm clock cutover (pending)
+
+The GitHub scheduled event was later measured at roughly 2.5–7.5-hour intervals. The replacement
+clock is implemented under `cloudflare-scheduler/`, but the original schedule remains authoritative
+until all of the following online checks pass:
+
+1. selected Cloudflare account independently confirmed as Workers Free;
+2. fine-grained GitHub credential limited to this repository and `Actions: write` only;
+3. one real Alarm produces exactly one `workflow_dispatch` run and one OCI capacity report;
+4. duplicate and delayed Alarm tests remain green and no catch-up burst occurs;
+5. current result remains ordinary `OUT_OF_HOST_CAPACITY` with no Issue;
+6. production Worker is redeployed without a route and the temporary commissioning secret deleted.
+
+Only then may a separate reviewed commit remove `schedule:` while retaining `workflow_dispatch`,
+concurrency, OCI semantics and existing notification behavior. First-24-hour evidence records the
+nominal slot, actual Alarm time, dispatch time, GitHub `created_at`, OCI server time and derived
+end-to-end latency. No OCI or billing resource is created during this cutover.
