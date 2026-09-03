@@ -1,5 +1,8 @@
 # Cloudflare Durable Alarm clock
 
+Status: **PRODUCTION / FROZEN** after the completed 24-hour audit on 2026-09-03. The only permitted
+change triggers are an A1 transition to `AVAILABLE` or a real operational failure.
+
 This directory replaces only the unreliable GitHub scheduled-event clock. The chain is:
 
 `Cloudflare Free SQLite Durable Object Alarm -> workflow_dispatch -> existing GitHub workflow -> OCI capacity report`

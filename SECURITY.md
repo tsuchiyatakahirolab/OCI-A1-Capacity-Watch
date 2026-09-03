@@ -47,7 +47,8 @@ fails closed; no broader permission is automatically granted.
 ## Public workflow trust
 
 The protected default branch and `oci-watch` environment branch restriction guard secrets.
-PR checks have no secrets, and production events are only schedule/manual on protected main.
+PR checks have no secrets, and production events are only fixed-target Cloudflare or owner-manual
+`workflow_dispatch` events on protected `main`; the former GitHub schedule has been removed.
 The owner controls privileged merges and repository settings; GitHub-hosted runner and
 dependency supply-chain trust remain part of the model. Actions and package wheel hashes
 are pinned. No artifacts/caches are uploaded. Secrets exist in memory only on ephemeral runners.
@@ -65,7 +66,7 @@ claims capacity availability alone proves an Always Free VM can be created.
 
 ## Cloudflare clock boundary
 
-The optional replacement clock is a Workers Free SQLite Durable Object that contains no OCI
+The production clock is a Workers Free SQLite Durable Object that contains no OCI
 credential or OCI request logic. Its only external action is one fixed GitHub Actions dispatch
 request per atomically claimed hourly slot. Repository, workflow and branch are constants; no
 request can select another target. The production Worker has no route and returns 404 from its
