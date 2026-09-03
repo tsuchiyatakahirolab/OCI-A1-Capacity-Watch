@@ -40,10 +40,11 @@ at commit `0dbe44175ca5429d0982316a7adc0fafa92eb176`:
 also passed. Initial workflow YAML parsing failures happened before any runner/job or OCI
 query; block-scalar syntax was corrected before the single real manual dispatch.
 
-## Activation controls
+## Historical activation controls
 
-Schedule: minute 17 every hour, UTC, best effort. Runtime code is unchanged from the
-successful manual dispatch. Overlapping older workflow executions are canceled, not retried.
+The initial GitHub schedule used minute 17 every hour, UTC, on a best-effort basis. It was later
+removed after the Durable Alarm cutover documented below. Runtime code remained unchanged from
+the successful manual dispatch. Overlapping older workflow executions are canceled, not retried.
 The enabling change passes the protected branch's `tests`
 check through a PR. Workflow permissions are `contents: read`, plus `issues: write` only
 on the separate notification job. The `oci-watch` environment allows only the `main` branch.
@@ -53,10 +54,8 @@ The online workflow only detects capacity. Availability is not authorization to 
 separate owner zero-billing revalidation remains necessary. No paid runner/service, artifact
 storage, OCI infrastructure or credit-consuming resource was commissioned.
 
-GitHub can disable public schedules after 60 days of repository inactivity. Use the README
-owner runbook; do not manufacture commits. The previous local capacity watcher remains a
-manual fallback, while its automatic schedule is paused only after online activation is
-verified. The separate local GFW collector remains unchanged and authoritative.
+The previous local capacity watcher remains a manual fallback. Its automatic schedule is paused.
+The separate local GFW collector remains unchanged and authoritative.
 
 ## Durable Alarm clock cutover — active 2026-09-02
 
@@ -85,3 +84,23 @@ window. After the successful online check the production Worker was deployed wit
 commissioning secret was deleted, and a separate reviewed change removed GitHub `schedule:` while
 retaining `workflow_dispatch`, concurrency, OCI semantics and existing notification behavior.
 No OCI or billing resource was created during this cutover.
+
+## 24-hour production audit and freeze — 2026-09-03
+
+The first 24-hour commissioning window completed successfully. It contains the initial online
+commissioning dispatch and 24 consecutive normal `:17 UTC` slots:
+
+- 25 runs; 25 successful; zero failed, missing or duplicate nominal slots;
+- normal Alarm delay from nominal slot: 20–472 ms;
+- Alarm-to-OCI server response: 12.567–22.679 seconds;
+- all 25 results: HTTP 200, `OUT_OF_HOST_CAPACITY`, `available_count: null`;
+- zero open notification Issues and no OCI resource mutation;
+- first run: https://github.com/tsuchiyatakahirolab/OCI-A1-Capacity-Watch/actions/runs/33616209925;
+- final run inside the window: https://github.com/tsuchiyatakahirolab/OCI-A1-Capacity-Watch/actions/runs/33737974972.
+
+The following `10:17 UTC` run also succeeded, confirming continued operation after the audit.
+The owner accepted v2 as **PRODUCTION / FROZEN**. Do not change the scheduler, IAM, Cloudflare
+Durable Object, GitHub workflow, OCI query semantics, or notification behavior unless A1 capacity
+transitions to `AVAILABLE` or a real operational failure occurs. No further development or
+monitoring-validation work is required while neither condition exists. This commissioning record
+and the README owner runbook are permanent evidence and must be preserved.

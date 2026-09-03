@@ -3,6 +3,14 @@
 A small, public, zero-billing GitHub Actions watcher. It reports capacity;
 it **does not provision anything**. No MGRB/GFW data or collector runtime lives here.
 
+## Production status
+
+**PRODUCTION / FROZEN** since the completed 24-hour commissioning audit on 2026-09-03.
+The scheduler, IAM boundary, Cloudflare Durable Object, GitHub workflow, OCI query semantics,
+and notification behavior must not change unless either A1 capacity transitions to `AVAILABLE`
+or a real operational failure occurs. Routine optimization, monitoring-validation work, and
+feature development are out of scope while frozen. Preserve `COMMISSIONING.md` and this runbook.
+
 ## Fixed request
 
 Region `ap-osaka-1`, availability domain `fBdI:AP-OSAKA-1-AD-1`,
@@ -54,9 +62,10 @@ the initial 24-hour timeliness window remains auditable without artifact uploads
 3. On an availability Issue, separately revalidate zero billing before any owner-authorized VM work.
 4. On credential-integrity alert, stop the workflow and have the owner inspect/revoke unexpected
    keys using their administrative context. The watcher never manages keys itself.
-5. Inspect the Cloudflare Alarm state and GitHub `workflow_dispatch` history when monitoring
-   timeliness; there is no GitHub cron fallback that can create duplicate queries.
-6. When changing code, use a PR with the required `tests` check; never put OCI secrets in PR jobs.
+5. There is no GitHub cron fallback that can create duplicate queries. Do not perform routine
+   monitoring-validation while the production system is frozen.
+6. Changes are permitted only after `AVAILABLE` or a real operational failure. Use a PR with the
+   required `tests` check and never put OCI secrets in PR jobs.
 7. The old local capacity watcher is a manual fallback after online commissioning. Its code and
    SQLite history are retained. The independent local GFW collector remains authoritative.
 
